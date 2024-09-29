@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /statdata/Wikimedia-statistics
+cd /data/project/statanalyser/Global-statistics
 sentence="$(<wiki_list.txt)"
 # wiki_name = ()
 for i in $sentence;
