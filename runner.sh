@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /statdata/Wikimedia-statistics
+cd /Global-statistics
 git pull
 #pip install --user  # useful if not already installed
 mysql --defaults-file="$HOME"/replica.my.cnf -h meta.analytics.db.svc.wikimedia.cloud meta_p -e "SELECT GROUP_CONCAT(dbname SEPARATOR ' ') FROM wiki;" > wiki_list.txt
