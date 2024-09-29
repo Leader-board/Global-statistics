@@ -1,0 +1,7 @@
+iso639-lang
+requests
+pandas
+scipy
+mysql-connector-python
+seaborn
+fileHash
