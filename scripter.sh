@@ -1,4 +1,5 @@
 #!/bin/bash
+source ../pyvenv/bin/activate
 cd /data/project/statanalyser/Global-statistics
 sentence="$(<wiki_list.txt)"
 # wiki_name = ()
@@ -11,6 +12,6 @@ mv *.csv ../rawcsv
 rm -r ../processed_csv
 mkdir -p ../processed_csv
 cd "Global user table generator"
-time python3 "global_generator.py"
-time python3 "pushtowiki.py"
-time python3 "user_data.py"
+time python "global_generator.py"
+time python "pushtowiki.py"
+time python "user_data.py"
