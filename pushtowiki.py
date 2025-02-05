@@ -46,12 +46,10 @@ def convert_to_string(fileloc, rankinc, wiki_name=None, existing_df = None):
     df.rename(
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
         inplace=True)
-    print(df)
     # df on its own is useful when graphing
 
     full_df = df.copy(deep=True)
     df.loc[df['Registration_date'].astype(str) == 'None', 'Registration_date'] = '0'  # remove nan
-    print(df)
     df['Registration_date'] = df['Registration_date'].astype(int)
     df['Registration_date'] = df['Registration_date'].astype(str)
     df.loc[df['Registration_date'] == '0', 'Registration_date'] = ''

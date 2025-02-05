@@ -38,6 +38,10 @@ def percentile_and_user_count(username, wiki_name):
         wiki_cache[wiki_name] = get_wiki_statistics(wiki_name)
         df = wiki_cache[wiki_name]
 
+    df.rename(
+        columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
+        inplace=True)
+
     df_user = df[df['Username'] == username]
     if len(df_user.index) == 0:
         return 0, len(df), 0
@@ -76,7 +80,7 @@ def analyse_user(username):
 def push_to_wiki(username, string_to_print):
     S = requests.Session()
 
-    f = open("/statdata/botdetails.txt", "r")
+    f = open("botdetails.txt", "r")
     filecont = f.read().splitlines()
     f.close()
     print(filecont)
