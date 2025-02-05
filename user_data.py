@@ -27,7 +27,7 @@ def parse_json(list_loc):
         user_name = re.split('[:\/]', page_name)[
             1]  # https://stackoverflow.com/questions/4998629/split-string-with-multiple-delimiters-in-python
         # and run the analysis there
-        push_to_wiki(page_name, analyse_user(user_name, '/statdata'))
+        push_to_wiki(page_name, analyse_user(user_name))
 
 
 # input to function: a user

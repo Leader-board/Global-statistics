@@ -49,9 +49,9 @@ def convert_to_string(fileloc, rankinc, wiki_name=None, existing_df = None):
     print(df)
     # df on its own is useful when graphing
 
-    df = df[df['Edits'] >= 1]  # weed out users with no edits
     full_df = df.copy(deep=True)
     df.loc[df['Registration_date'].astype(str) == 'nan', 'Registration_date'] = '0'  # remove nan
+    print(df)
     df['Registration_date'] = df['Registration_date'].astype(int)
     df['Registration_date'] = df['Registration_date'].astype(str)
     df.loc[df['Registration_date'] == '0', 'Registration_date'] = ''
