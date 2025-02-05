@@ -43,6 +43,7 @@ def convert_to_string(fileloc, rankinc, wiki_name=None, existing_df = None):
     else:
         df = return_csv(fileloc, rankinc)
 
+    print(df)
     # df on its own is useful when graphing
 
     df = df[df['Edits'] >= 1]  # weed out users with no edits
