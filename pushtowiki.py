@@ -215,6 +215,7 @@ def get_wiki_statistics(wiki_name):
 
 def local_wiki_processing():
     wiki_list = get_wiki_set()
+    percentile_toprint = ''
     for wiki in wiki_list:
         print(f"Processing {wiki}")
         df = get_wiki_statistics(wiki)
