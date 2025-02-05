@@ -86,7 +86,7 @@ def add_categories(wiki_name):
     # find the language
     if wiki_name == 'global':
         return '' # no categories
-    cnx = mysql.connector.connect(option_files='$HOME/replica.my.cnf', host='meta.analytics.db.svc.wikimedia.cloud',
+    cnx = mysql.connector.connect(option_files='replica.my.cnf', host='meta.analytics.db.svc.wikimedia.cloud',
                                   database='meta_p')
 
     # handle exceptions
