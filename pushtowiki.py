@@ -232,7 +232,7 @@ def local_wiki_processing():
 def get_token(upload):
     S = requests.Session()
 
-    f = open("../../botdetails.txt", "r")
+    f = open("botdetails.txt", "r")
     filecont = f.read().splitlines()
     f.close()
     if len(filecont) != 5:
