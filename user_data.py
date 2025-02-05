@@ -7,6 +7,9 @@ import json
 from urllib.request import urlopen
 import re
 
+from pushtowiki import get_wiki_statistics
+from vars import wiki_cache, get_wiki_set
+
 
 def parse_json(list_loc):
     """
@@ -28,18 +31,12 @@ def parse_json(list_loc):
 
 
 # input to function: a user
-def percentile_and_user_count(username, fileloc, rankinc):
-    # fileloc - absolute location to file
-    if rankinc:
-        df = pd.read_csv(fileloc, on_bad_lines='skip', sep='|', quoting=csv.QUOTE_NONE)
+def percentile_and_user_count(username, wiki_name):
+    if wiki_name in wiki_cache:
+        df = wiki_cache[wiki_name]
     else:
-        df = pd.read_csv(fileloc, on_bad_lines='skip', sep='\t', quoting=csv.QUOTE_NONE)
-    df.rename(columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
-              inplace=True)
-    # we now have dataframe
-    # get user details via linear search
-    if not rankinc:
-        df['Rank'] = df['Edits'].rank(method='max', ascending=False).astype(int)
+        wiki_cache[wiki_name] = get_wiki_statistics(wiki_name)
+        df = wiki_cache[wiki_name]
 
     df_user = df[df['Username'] == username]
     if len(df_user.index) == 0:
@@ -61,44 +58,17 @@ def convert_to_string(wikiname, usercount, rank, percentile):
     return toprint
 
 
-def analyse_user(username, folderloc):
-    oldloc = folderloc
-    folderloc = oldloc + "/processed_csv"
-    files = listdir(folderloc)
+def analyse_user(username):
+    wiki_set = get_wiki_set()
     percentile_toprint = header_data(username)
-    for f in files:
-        filename = folderloc + "/" + str(f)
-        # print it the same way
-        page_name = str(f)[:-4]
-        print(filename)
+    for f in wiki_set:
+        print(f)
         # for each file, what do we want? 
         # we want the user's percentile and edit count for each wiki
-        if 'global' in page_name:
-            usercount, rank, percentile = percentile_and_user_count(username, filename, True)
-        else:
-            usercount, rank, percentile = percentile_and_user_count(username, filename, False)
-        # prepare for printing
-        if usercount != 0:
-            percentile_toprint += convert_to_string(page_name, usercount, rank, percentile)
+        usercount, rank, percentile = percentile_and_user_count(username, f)
 
-    # virtually duplicated code to handle the other folder; can be refactored
-    folderloc = oldloc + "/rawcsv"
-    files = listdir(folderloc)
-    for f in files:
-        filename = folderloc + "/" + str(f)
-        # print it the same way
-        page_name = str(f)[:-4]
-        print(filename)
-        # for each file, what do we want? 
-        # we want the user's percentile and edit count for each wiki
-        percentile = 0
-        if 'global' in page_name:
-            usercount, rank, percentile = percentile_and_user_count(username, filename, True)
-        else:
-            usercount, rank, percentile = percentile_and_user_count(username, filename, False)
-        # prepare for printing
-        if percentile != 0:
-            percentile_toprint += convert_to_string(page_name, usercount, rank, percentile)
+        if usercount != 0:
+            percentile_toprint += convert_to_string(f, usercount, rank, percentile)
     percentile_toprint += '|}\n\n'
     return percentile_toprint
 

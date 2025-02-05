@@ -14,6 +14,8 @@ import os
 
 from iso639 import Lang
 
+from vars import wiki_cache, get_wiki_set
+
 
 def header_data(wikiname):
     return "{{| class=\"wikitable sortable\"\n|+ {} user rank data\n|-\n! Rank !! Username !! Registration date !! Number of edits\n|-\n".format(
@@ -188,26 +190,38 @@ def graph_data(df, wiki_name):
                      f'\n[[Category: Global statistics]]\n{add_categories(wiki_name)}', upload=True)
     plt.clf()
 
-df_list = []
-def local_wiki_processing(folderloc):
-    # process all local wiki data
-    files = listdir(folderloc)
-    percentile_toprint = ''
-    global df_list
-    for f in files:
-        filename = folderloc + "/" + str(f)
-        # print it the same way
-        page_name = str(f)[:-4]
-        print("Currently processing: {}".format(page_name))
-        tp, dframe, graph_df = convert_to_string(filename, False, page_name)
-        df_list.append(graph_df)
-        toprint = header_data(page_name) + tp
-        # and push it to an appropriate place on the wiki
-        push_to_wiki('Rank data/' + page_name, toprint)
-        graph_data(graph_df, page_name)
-        # print(toprint)
-        percentile_toprint = percentile_toprint + '=={}==\n\n'.format(page_name)
-        percentile_toprint = percentile_toprint + get_percentile_data(dframe, page_name)
+
+def get_wiki_statistics(wiki_name):
+    if wiki_name in wiki_cache:
+        return wiki_cache[wiki_name]
+
+    try:
+        cnx = mysql.connector.connect(option_files='replica.my.cnf', host=f'{wiki_name}.analytics.db.svc.wikimedia.cloud',
+                                            database=f'{wiki_name}_p')
+        query = 'SELECT user_name, user_registration, user_editcount from user ORDER BY user_editcount desc WHERE user_editcount > 0'
+        cursor = cnx.cursor()
+        cursor.execute(query)
+        res = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
+        cursor.close()
+        return res
+    except Exception as e:
+        print(f"Error in {wiki_name}")
+        print(e)
+        return None
+
+
+
+def local_wiki_processing():
+    wiki_list = get_wiki_set()
+    for wiki in wiki_list:
+        print(f"Processing {wiki}")
+        df = get_wiki_statistics(wiki)
+        tp, dframe, graph_df = convert_to_string('', False, wiki, df)
+        toprint = header_data(wiki) + tp
+        push_to_wiki('Rank data/' + wiki, toprint)
+        graph_data(graph_df, wiki)
+        percentile_toprint = percentile_toprint + '=={}==\n\n'.format(wiki)
+        percentile_toprint = percentile_toprint + get_percentile_data(dframe, wiki)
 
     percentile_toprint = percentile_toprint.encode('utf-8')[:2096900].decode('utf-8')  # running into length limit
     return percentile_toprint
@@ -344,7 +358,7 @@ def main():
     # plt.clf()
 
     # first process all the LOCAL data while preparing the global data as a result
-    lwp = local_wiki_processing( '/statdata/rawcsv')
+    lwp = local_wiki_processing()
 
     combined_df = pd.concat(df_list).groupby('Username')['Edits'].sum().reset_index()
 
