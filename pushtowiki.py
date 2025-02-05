@@ -43,7 +43,7 @@ def convert_to_string(fileloc, rankinc, wiki_name=None, existing_df = None):
     else:
         df = return_csv(fileloc, rankinc)
 
-    dframe.rename(
+    df.rename(
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
         inplace=True)
     print(df)
