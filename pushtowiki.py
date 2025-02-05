@@ -43,6 +43,9 @@ def convert_to_string(fileloc, rankinc, wiki_name=None, existing_df = None):
     else:
         df = return_csv(fileloc, rankinc)
 
+    dframe.rename(
+        columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
+        inplace=True)
     print(df)
     # df on its own is useful when graphing
 
