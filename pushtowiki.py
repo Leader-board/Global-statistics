@@ -34,9 +34,12 @@ def return_csv(fileloc, rankinc):
               inplace=True)
     return df
 
-def convert_to_string(fileloc, rankinc, wiki_name=None):
+def convert_to_string(fileloc, rankinc, wiki_name=None, existing_df = None):
 
-    df = return_csv(fileloc, rankinc)
+    if existing_df is not None:
+        df = existing_df
+    else:
+        df = return_csv(fileloc, rankinc)
 
     # df on its own is useful when graphing
 
@@ -185,17 +188,19 @@ def graph_data(df, wiki_name):
                      f'\n[[Category: Global statistics]]\n{add_categories(wiki_name)}', upload=True)
     plt.clf()
 
-
+df_list = []
 def local_wiki_processing(folderloc):
     # process all local wiki data
     files = listdir(folderloc)
     percentile_toprint = ''
+    global df_list
     for f in files:
         filename = folderloc + "/" + str(f)
         # print it the same way
         page_name = str(f)[:-4]
         print("Currently processing: {}".format(page_name))
         tp, dframe, graph_df = convert_to_string(filename, False, page_name)
+        df_list.append(graph_df)
         toprint = header_data(page_name) + tp
         # and push it to an appropriate place on the wiki
         push_to_wiki('Rank data/' + page_name, toprint)
@@ -328,19 +333,27 @@ def push_to_wiki(page_name, string_to_print, upload=False):
 
     print(DATA)
 
-
+global df_list
 def main():
-    fileloc = '/statdata/processed_csv/globalcontribs.csv'
-    # H://testdata.txt
-    stp, df, graph_df = convert_to_string(fileloc, True)
-    string_to_print = header_data('Global') + stp
-    push_to_wiki("Rank data/Global", string_to_print)
-    graph_data(graph_df, 'Global')
-    plt.clf()
-    percentile_toprint = '=={}==\n\n'.format("Global") + get_percentile_data(df, "Global") + local_wiki_processing(
-        '/statdata/rawcsv')
-    push_to_wiki("Percentiles", percentile_toprint)
+    # fileloc = '/statdata/processed_csv/globalcontribs.csv'
+    # # H://testdata.txt
+    # stp, df, graph_df = convert_to_string(fileloc, True)
+    # string_to_print = header_data('Global') + stp
+    # push_to_wiki("Rank data/Global", string_to_print)
+    # graph_data(graph_df, 'Global')
+    # plt.clf()
+
+    # first process all the LOCAL data while preparing the global data as a result
+    lwp = local_wiki_processing( '/statdata/rawcsv')
+
+    combined_df = pd.concat(df_list).groupby('Username')['Edits'].sum().reset_index()
+
+    stp, df, graph_df = convert_to_string('', False, combined_df)
+
+
     # print(string_to_print)
+    percentile_toprint = '=={}==\n\n'.format("Global") + get_percentile_data(df, "Global") + lwp
+    push_to_wiki("Percentiles", percentile_toprint)
 
 if __name__ == "__main__":
     main()
