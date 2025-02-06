@@ -200,7 +200,7 @@ def get_wiki_statistics(wiki_name):
     try:
         cnx = pymysql.connect(read_default_file='replica.my.cnf', host=f'{wiki_name}.analytics.db.svc.wikimedia.cloud',
                                             database=f'{wiki_name}_p')
-        query = "SELECT user_name, user_registration, user_editcount from user WHERE user_editcount > 0 ORDER BY user_editcount desc LIMIT 1000000"
+        query = "SELECT user_name, user_registration, user_editcount from user WHERE user_editcount > 0 ORDER BY user_editcount desc LIMIT 100000"
         cursor = cnx.cursor()
         cursor.execute(query)
         res = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
