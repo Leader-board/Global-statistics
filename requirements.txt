@@ -5,3 +5,4 @@ scipy
 mysql-connector-python
 seaborn
 fileHash
+PyMySQL
