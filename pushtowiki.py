@@ -209,9 +209,9 @@ def get_wiki_statistics(wiki_name):
             cursor = cnx.cursor()
             cursor.execute(query)
             res = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
-            cursor.close()
             ll.append(res)
             offset += limit
+            cursor.close()
             if len(res) < limit:
                 break
 
