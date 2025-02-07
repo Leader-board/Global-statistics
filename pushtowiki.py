@@ -199,7 +199,7 @@ def get_wiki_statistics(wiki_name):
 
     try:
         ll = []
-        limit = 200000
+        limit = 600000
         offset = 0
         while True:
             print(f"Offset = {offset}")
