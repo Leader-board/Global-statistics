@@ -199,9 +199,9 @@ def get_wiki_statistics(wiki_name):
 
     try:
         ll = []
+        limit = 200000
+        offset = 0
         while True:
-            limit = 200000
-            offset = 0
             print(f"Offset = {offset}")
             cnx = pymysql.connect(read_default_file='replica.my.cnf', host=f'{wiki_name}.analytics.db.svc.wikimedia.cloud',
                                                 database=f'{wiki_name}_p')
