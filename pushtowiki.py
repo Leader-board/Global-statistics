@@ -88,7 +88,7 @@ def add_categories(wiki_name):
     # find the language
     if wiki_name == 'global':
         return '' # no categories
-    cnx = mysql.connector.connect(option_files='replica.my.cnf', host='meta.analytics.db.svc.wikimedia.cloud',
+    cnx = mysql.connector.connect(option_files='/root/replica.my.cnf', host='meta.analytics.db.svc.wikimedia.cloud',
                                   database='meta_p')
 
     # handle exceptions
@@ -198,7 +198,7 @@ def get_wiki_statistics(wiki_name):
         return wiki_cache[wiki_name]
 
     try:
-        cnx = pymysql.connect(read_default_file='replica.my.cnf', host=f'{wiki_name}.analytics.db.svc.wikimedia.cloud',
+        cnx = pymysql.connect(read_default_file='/root/replica.my.cnf', host=f'{wiki_name}.analytics.db.svc.wikimedia.cloud',
                               database=f'{wiki_name}_p')
         query = "SELECT user_name, user_registration, user_editcount from user WHERE user_editcount > 0 ORDER BY user_editcount desc"
         cursor = cnx.cursor(pymysql.cursors.SSCursor)
