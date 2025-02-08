@@ -352,8 +352,9 @@ def push_to_wiki(page_name, string_to_print, upload=False):
 
     print(DATA)
 
-global df_list
+
 def main():
+    global df_list
     # fileloc = '/statdata/processed_csv/globalcontribs.csv'
     # # H://testdata.txt
     # stp, df, graph_df = convert_to_string(fileloc, True)
