@@ -213,8 +213,8 @@ def get_wiki_statistics(wiki_name):
 
 
 df_list = []
-global df_list
 def local_wiki_processing():
+    global df_list
     wiki_list = get_wiki_set()
     percentile_toprint = ''
     for wiki in wiki_list:
