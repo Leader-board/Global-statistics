@@ -49,6 +49,7 @@ def convert_to_string(fileloc, rankinc, wiki_name=None, existing_df = None):
     # df on its own is useful when graphing
 
     full_df = df.copy(deep=True)
+    df['Username'] = df['Username'].str.decode('utf-8')
     df['Registration_date'].fillna('0', inplace=True)
     df.loc[df['Registration_date'].astype(str) == '[None]', 'Registration_date'] = '0'  # remove nan
     df.loc[df['Registration_date'].astype(str) == '', 'Registration_date'] = '0'  # remove nan
@@ -73,7 +74,7 @@ def convert_to_string(fileloc, rankinc, wiki_name=None, existing_df = None):
     # convert to string
 
     toprint = pd.DataFrame({'text': ['\n|-\n'.join(df['output'].str.strip('"').tolist())]})['text'].item()
-    toprint = toprint.encode('utf-8')
+    #toprint = toprint.encode('utf-8')
     # don't forget encoding limit!
 
     # toprint = toprint.encode('utf-8')[:2096900].decode('utf-8')
