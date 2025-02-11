@@ -73,7 +73,7 @@ def convert_to_string(fileloc, rankinc, wiki_name=None, existing_df = None):
     # convert to string
 
     toprint = pd.DataFrame({'text': ['\n|-\n'.join(df['output'].str.strip('"').tolist())]})['text'].item()
-
+    toprint = toprint.encode('utf-8')
     # don't forget encoding limit!
 
     # toprint = toprint.encode('utf-8')[:2096900].decode('utf-8')
