@@ -203,7 +203,7 @@ def get_wiki_statistics(wiki_name):
     try:
         cnx = pymysql.connect(read_default_file='/root/replica.my.cnf', host=f'{wiki_name}.analytics.db.svc.wikimedia.cloud',
                               database=f'{wiki_name}_p')
-        query = "SELECT user_name, user_registration, user_editcount from user WHERE user_editcount > 0 AND user_is_temp = false ORDER BY user_editcount desc"
+        query = "SELECT user_name, user_registration, user_editcount from user WHERE user_is_temp = false ORDER BY user_editcount desc"
         cursor = cnx.cursor(pymysql.cursors.SSCursor)
         cursor.execute(query)
         res = pd.DataFrame(cursor.fetchall_unbuffered(), columns=[desc[0] for desc in cursor.description])
@@ -371,9 +371,9 @@ def main():
 
     combined_df = pd.concat(df_list).groupby(['Username', 'Registration_date'])['Edits'].sum().reset_index()
 
-    push_to_wiki('Rank data/Global', combined_df)
-    stp, df, graph_df = convert_to_string('', False , 'global', combined_df)
 
+    stp, df, graph_df = convert_to_string('', False , 'global', combined_df)
+    push_to_wiki('Rank data/Global', stp)
 
     # print(string_to_print)
     percentile_toprint = '=={}==\n\n'.format("Global") + get_percentile_data(df, "Global") + lwp
