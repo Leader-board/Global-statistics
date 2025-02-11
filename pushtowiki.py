@@ -49,6 +49,7 @@ def convert_to_string(fileloc, rankinc, wiki_name=None, existing_df = None):
     # df on its own is useful when graphing
 
     full_df = df.copy(deep=True)
+    df['Registration_date'].fillna('0', inplace=True)
     df.loc[df['Registration_date'].astype(str) == '[None]', 'Registration_date'] = '0'  # remove nan
     df.loc[df['Registration_date'].astype(str) == '', 'Registration_date'] = '0'  # remove nan
     df['Registration_date'] = df['Registration_date'].astype(int)
