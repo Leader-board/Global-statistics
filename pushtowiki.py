@@ -49,7 +49,8 @@ def convert_to_string(fileloc, rankinc, wiki_name=None, existing_df = None):
     # df on its own is useful when graphing
 
     full_df = df.copy(deep=True)
-    df.loc[df['Registration_date'].astype(str) == 'None', 'Registration_date'] = '0'  # remove nan
+    df.loc[df['Registration_date'].astype(str) == '[None]', 'Registration_date'] = '0'  # remove nan
+    df.loc[df['Registration_date'].astype(str) == '', 'Registration_date'] = '0'  # remove nan
     df['Registration_date'] = df['Registration_date'].astype(int)
     df['Registration_date'] = df['Registration_date'].astype(str)
     df.loc[df['Registration_date'] == '0', 'Registration_date'] = ''
@@ -366,7 +367,7 @@ def main():
     # first process all the LOCAL data while preparing the global data as a result
     lwp = local_wiki_processing()
 
-    combined_df = pd.concat(df_list).groupby('Username')[['Edits', 'Registration_date']].sum().reset_index()
+    combined_df = pd.concat(df_list).groupby(['Username', 'Registration_date'])['Edits'].sum().reset_index()
 
     print(combined_df)
     stp, df, graph_df = convert_to_string('', False , 'global', combined_df)
