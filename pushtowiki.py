@@ -366,7 +366,7 @@ def main():
     # first process all the LOCAL data while preparing the global data as a result
     lwp = local_wiki_processing()
 
-    combined_df = pd.concat(df_list).groupby('Username')['Edits'].sum().reset_index()
+    combined_df = pd.concat(df_list).groupby('Username')['Edits', 'Registration_date'].sum().reset_index()
 
     print(combined_df)
     stp, df, graph_df = convert_to_string('', False , 'global', combined_df)
