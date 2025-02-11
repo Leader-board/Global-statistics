@@ -368,6 +368,7 @@ def main():
 
     combined_df = pd.concat(df_list).groupby('Username')['Edits'].sum().reset_index()
 
+    print(combined_df)
     stp, df, graph_df = convert_to_string('', False, combined_df)
 
 

@@ -1,6 +1,6 @@
 #!/bin/bash
-source ../pyvenv/bin/activate
-cd /data/project/statanalyser/Global-statistics
-#time python "global_generator.py"
+#source ../pyvenv/bin/activate
+#cd /data/project/statanalyser/Global-statistics
+cd /statdata/Global-statistics
 time python "pushtowiki.py"
 time python "user_data.py"
