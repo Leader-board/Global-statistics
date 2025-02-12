@@ -32,11 +32,7 @@ def parse_json(list_loc):
 
 # input to function: a user
 def percentile_and_user_count(username, wiki_name):
-    if wiki_name in wiki_cache:
-        df = wiki_cache[wiki_name]
-    else:
-        wiki_cache[wiki_name] = get_wiki_statistics(wiki_name)
-        df = wiki_cache[wiki_name]
+    df = get_wiki_statistics(wiki_name, False)
 
     df.rename(
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},

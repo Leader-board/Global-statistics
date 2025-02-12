@@ -194,14 +194,17 @@ def graph_data(df, wiki_name):
     plt.clf()
 
 
-def get_wiki_statistics(wiki_name):
+def get_wiki_statistics(wiki_name, include_zero = True):
     if wiki_name in wiki_cache:
         return wiki_cache[wiki_name]
 
     try:
         cnx = mysql.connector.connect(option_files='replica.my.cnf', host=f'{wiki_name}.analytics.db.svc.wikimedia.cloud',
                                       database=f'{wiki_name}_p')
-        query = "SELECT user_name, user_registration, user_editcount from user WHERE user_is_temp = false ORDER BY user_editcount desc"
+        if include_zero:
+            query = "SELECT user_name, user_registration, user_editcount from user WHERE user_is_temp = false ORDER BY user_editcount desc"
+        else:
+            query = "SELECT user_name, user_registration, user_editcount from user WHERE user_is_temp = false AND user_editcount > 0 ORDER BY user_editcount desc"
         cursor = cnx.cursor()
         cursor.execute(query)
         res = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
