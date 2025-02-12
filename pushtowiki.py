@@ -222,7 +222,7 @@ def local_wiki_processing():
         print(f"Processing {wiki}")
         df = get_wiki_statistics(wiki)
         tp, dframe, graph_df = convert_to_string(False, wiki, df)
-        df_list.append(dframe)
+        df_list.append(graph_df[graph_df['Edits'] > 0])
         toprint = header_data(wiki) + tp
         push_to_wiki('Rank data/' + wiki, toprint)
         graph_data(graph_df, wiki)
