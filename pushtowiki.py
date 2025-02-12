@@ -199,12 +199,12 @@ def get_wiki_statistics(wiki_name):
         return wiki_cache[wiki_name]
 
     try:
-        cnx = pymysql.connect(read_default_file='/root/replica.my.cnf', host=f'{wiki_name}.analytics.db.svc.wikimedia.cloud',
-                              database=f'{wiki_name}_p')
+        cnx = mysql.connector.connect(option_files='replica.my.cnf', host=f'{wiki_name}.analytics.db.svc.wikimedia.cloud',
+                                      database=f'{wiki_name}_p')
         query = "SELECT user_name, user_registration, user_editcount from user WHERE user_is_temp = false ORDER BY user_editcount desc"
-        cursor = cnx.cursor(pymysql.cursors.SSCursor)
+        cursor = cnx.cursor()
         cursor.execute(query)
-        res = pd.DataFrame(cursor.fetchall_unbuffered(), columns=[desc[0] for desc in cursor.description])
+        res = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
         cursor.close()
         return res
     except Exception as e:
@@ -222,12 +222,7 @@ def local_wiki_processing():
         print(f"Processing {wiki}")
         df = get_wiki_statistics(wiki)
         tp, dframe, graph_df = convert_to_string(False, wiki, df)
-        if len(df_list) == 0:
-            df_list.append(graph_df)
-        else: # concat early on to save memory
-            df_list.append(graph_df)
-            df_list[0] = pd.concat(df_list).groupby(['Username', 'Registration_date'])['Edits'].sum().reset_index()
-            df_list.pop(1)
+        df_list.append(dframe)
         toprint = header_data(wiki) + tp
         push_to_wiki('Rank data/' + wiki, toprint)
         graph_data(graph_df, wiki)
@@ -372,7 +367,7 @@ def main():
     push_to_wiki('Rank data/Global', stp)
 
     # print(string_to_print)
-    percentile_toprint = '=={}==\n\n'.format("Global") + get_percentile_data(df, "Global") + lwp
+    percentile_toprint = '=={}==\n\n'.format("Global") + get_percentile_data(graph_df, "Global") + lwp
     push_to_wiki("Percentiles", percentile_toprint)
 
 if __name__ == "__main__":
