@@ -225,7 +225,9 @@ def local_wiki_processing():
         if len(df_list) == 0:
             df_list.append(graph_df)
         else: # concat early on to save memory
-            df_list[0] = df_list[0].concat(graph_df).groupby(['Username', 'Registration_date'])['Edits'].sum().reset_index()
+            df_list.append(graph_df)
+            df_list[0] = pd.concat(df_list).groupby(['Username', 'Registration_date'])['Edits'].sum().reset_index()
+            df_list.pop(1)
         toprint = header_data(wiki) + tp
         push_to_wiki('Rank data/' + wiki, toprint)
         graph_data(graph_df, wiki)
