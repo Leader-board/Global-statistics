@@ -38,7 +38,7 @@ def return_csv(fileloc, rankinc):
 
 def convert_to_string(rankinc, wiki_name=None, existing_df = None):
 
-    df = existing_df.copy(deep=True) # to avoid warning
+    df = existing_df.copy(deep=False) # to avoid warning
     df.rename(
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
         inplace=True)
@@ -222,7 +222,10 @@ def local_wiki_processing():
         print(f"Processing {wiki}")
         df = get_wiki_statistics(wiki)
         tp, dframe, graph_df = convert_to_string(False, wiki, df)
-        df_list.append(graph_df)
+        if len(df_list) == 0:
+            df_list.append(graph_df)
+        else: # concat early on to save memory
+            df_list[0] = df_list[0].concat(graph_df).groupby(['Username', 'Registration_date'])['Edits'].sum().reset_index()
         toprint = header_data(wiki) + tp
         push_to_wiki('Rank data/' + wiki, toprint)
         graph_data(graph_df, wiki)
