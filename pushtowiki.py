@@ -46,6 +46,7 @@ def convert_to_string(fileloc, rankinc, wiki_name=None, existing_df = None):
     df.rename(
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
         inplace=True)
+
     # df on its own is useful when graphing
 
     full_df = df.copy(deep=True)
@@ -182,7 +183,7 @@ def get_percentile_data(dframe, wikiname):
 
 def graph_data(df, wiki_name):
     print(f"Graphing {wiki_name}")
-    sns.histplot(data=df, x='Edits', kde=False, log_scale=2).set(title=f'{wiki_name} edit count')
+    sns.histplot(data=df[df['Edits'] > 0], x='Edits', kde=False, log_scale=2).set(title=f'{wiki_name} edit count')
     if len(df) > 500:
         plt.yscale('log', base=2)
     # plt.xscale('log', base=2)
@@ -224,12 +225,12 @@ def local_wiki_processing():
         print(f"Processing {wiki}")
         df = get_wiki_statistics(wiki)
         tp, dframe, graph_df = convert_to_string('', False, wiki, df)
-        df_list.append(dframe)
+        df_list.append(graph_df)
         toprint = header_data(wiki) + tp
         push_to_wiki('Rank data/' + wiki, toprint)
         graph_data(graph_df, wiki)
         percentile_toprint = percentile_toprint + '=={}==\n\n'.format(wiki)
-        percentile_toprint = percentile_toprint + get_percentile_data(dframe, wiki)
+        percentile_toprint = percentile_toprint + get_percentile_data(graph_df, wiki)
 
     percentile_toprint = percentile_toprint.encode('utf-8')[:2096900].decode('utf-8')  # running into length limit
     return percentile_toprint
@@ -358,13 +359,6 @@ def push_to_wiki(page_name, string_to_print, upload=False):
 
 def main():
     global df_list
-    # fileloc = '/statdata/processed_csv/globalcontribs.csv'
-    # # H://testdata.txt
-    # stp, df, graph_df = convert_to_string(fileloc, True)
-    # string_to_print = header_data('Global') + stp
-    # push_to_wiki("Rank data/Global", string_to_print)
-    # graph_data(graph_df, 'Global')
-    # plt.clf()
 
     # first process all the LOCAL data while preparing the global data as a result
     lwp = local_wiki_processing()
