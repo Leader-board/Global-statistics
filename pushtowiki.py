@@ -36,13 +36,9 @@ def return_csv(fileloc, rankinc):
               inplace=True)
     return df
 
-def convert_to_string(fileloc, rankinc, wiki_name=None, existing_df = None):
+def convert_to_string(rankinc, wiki_name=None, existing_df = None):
 
-    if existing_df is not None:
-        df = existing_df
-    else:
-        df = return_csv(fileloc, rankinc)
-
+    df = existing_df.copy(deep=True) # to avoid warning
     df.rename(
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
         inplace=True)
@@ -225,7 +221,7 @@ def local_wiki_processing():
     for wiki in wiki_list:
         print(f"Processing {wiki}")
         df = get_wiki_statistics(wiki)
-        tp, dframe, graph_df = convert_to_string('', False, wiki, df)
+        tp, dframe, graph_df = convert_to_string(False, wiki, df)
         df_list.append(graph_df)
         toprint = header_data(wiki) + tp
         push_to_wiki('Rank data/' + wiki, toprint)
@@ -367,7 +363,7 @@ def main():
     combined_df = pd.concat(df_list).groupby(['Username', 'Registration_date'])['Edits'].sum().reset_index()
 
 
-    stp, df, graph_df = convert_to_string('', False , 'global', combined_df)
+    stp, df, graph_df = convert_to_string(False , 'global', combined_df)
     push_to_wiki('Rank data/Global', stp)
 
     # print(string_to_print)
