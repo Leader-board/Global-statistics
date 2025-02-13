@@ -39,9 +39,9 @@ def percentile_and_user_count(username, wiki_name):
     df['Rank'] = df['Edits'].rank(ascending=False, method='min')
     df_user = df[df['Username'] == username]
 
-    print(df)
-    if len(df.index) == 0:
-        return 0, len(df), 0
+    print(df_user)
+    if len(df_user.index) == 0:
+        return 0, len(df_user), 0
 
     rank = df_user['Rank'].item()
     usercount = df_user['Edits'].item()
