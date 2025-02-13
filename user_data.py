@@ -1,3 +1,4 @@
+import pandas as pd
 import requests
 from scipy import stats
 import json
@@ -28,8 +29,9 @@ def parse_json(list_loc):
 
 
 # input to function: a user
-def percentile_and_user_count(username, wiki_name):
-    df = get_wiki_statistics(wiki_name, True)
+def percentile_and_user_count(username, wiki_name, df=None):
+    if wiki_name != 'global':
+        df = get_wiki_statistics(wiki_name, True)
 
     df.rename(
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
@@ -74,6 +76,13 @@ def analyse_user(username):
             percentile_toprint += convert_to_string(f, usercount, rank, percentile)
 
    #     print (percentile_toprint)
+    # also handle global
+    try:
+        usercount, rank, percentile = percentile_and_user_count(username, 'global', pd.read_pickle("global.pickle"))
+        if usercount != 0:
+            percentile_toprint += convert_to_string('global', usercount, rank, percentile)
+    except Exception as e:
+        print(f"Global data not found - details {e}")
     percentile_toprint += '|}\n\n'
     return percentile_toprint
 

@@ -1,3 +1,5 @@
+import pickle
+
 import requests
 import pandas as pd
 import math
@@ -370,6 +372,8 @@ def main():
 
     stp, df, graph_df = convert_to_string(False, 'global', combined_df)
     push_to_wiki('Rank data/Global', stp)
+    
+    graph_df.to_pickle("global.pickle")
 
     # print(string_to_print)
     percentile_toprint = '=={}==\n\n'.format("Global") + get_percentile_data(graph_df, "Global") + lwp
