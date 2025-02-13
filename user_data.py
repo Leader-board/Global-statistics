@@ -45,7 +45,7 @@ def percentile_and_user_count(username, wiki_name):
 
     rank = df_user['Rank'].item()
     usercount = df_user['Edits'].item()
-    percentile = stats.percentileofscore(df_user['Edits'], usercount, kind='strict')
+    percentile = stats.percentileofscore(df['Edits'], usercount, kind='strict')
     return usercount, rank, percentile
 
 
