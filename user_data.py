@@ -35,12 +35,14 @@ def percentile_and_user_count(username, wiki_name):
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
         inplace=True)
 
-    df_user = df[df['Username'] == username]
-    if len(df_user.index) == 0:
+    print(df)
+    df = df[df['Username'] == username]
+    print(df)
+    if len(df.index) == 0:
         return 0, len(df), 0
 
-    rank = df_user['Rank'].item()
-    usercount = df_user['Edits'].item()
+    rank = df['Rank'].item()
+    usercount = df['Edits'].item()
     percentile = stats.percentileofscore(df['Edits'], usercount, kind='strict')
     return usercount, rank, percentile
 
