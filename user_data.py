@@ -68,12 +68,12 @@ def analyse_user(username):
         # we want the user's percentile and edit count for each wiki
         usercount, rank, percentile = percentile_and_user_count(username, f)
 
-        print (username, rank, percentile)
+    #    print (username, rank, percentile)
 
         if usercount != 0:
             percentile_toprint += convert_to_string(f, usercount, rank, percentile)
 
-        print (percentile_toprint)
+   #     print (percentile_toprint)
     percentile_toprint += '|}\n\n'
     return percentile_toprint
 
