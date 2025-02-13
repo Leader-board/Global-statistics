@@ -1,4 +1,3 @@
-from os import listdir
 import requests
 import pandas as pd
 import math
@@ -9,8 +8,6 @@ import matplotlib.pyplot as plt
 from datetime import date, timezone, datetime
 from dateutil import parser
 from filehash import FileHash
-import pymysql.cursors
-import os
 
 from iso639 import Lang
 
@@ -26,6 +23,7 @@ def header_data_percentile(wikiname):
     return "{{| class=\"wikitable sortable\"\n|+ {} percentile data\n|-\n! Percentile !! Number of edits\n".format(
         wikiname)
 
+
 def return_csv(fileloc, rankinc):
     limit = 90000000
     if rankinc:  # global
@@ -36,9 +34,9 @@ def return_csv(fileloc, rankinc):
               inplace=True)
     return df
 
-def convert_to_string(rankinc, wiki_name=None, existing_df = None):
 
-    df = existing_df.copy(deep=False) # to avoid warning
+def convert_to_string(rankinc, wiki_name=None, existing_df=None):
+    df = existing_df.copy(deep=False)  # to avoid warning
     df.rename(
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
         inplace=True)
@@ -88,7 +86,7 @@ def add_categories(wiki_name):
     # input is something like 'enwiki', 'mlwikisource'
     # find the language
     if wiki_name == 'global':
-        return '' # no categories
+        return ''  # no categories
     cnx = mysql.connector.connect(option_files='replica.my.cnf', host='meta.analytics.db.svc.wikimedia.cloud',
                                   database='meta_p')
 
@@ -194,12 +192,13 @@ def graph_data(df, wiki_name):
     plt.clf()
 
 
-def get_wiki_statistics(wiki_name, include_zero = True):
+def get_wiki_statistics(wiki_name, include_zero=True):
     if wiki_name in wiki_cache:
         return wiki_cache[wiki_name]
 
     try:
-        cnx = mysql.connector.connect(option_files='replica.my.cnf', host=f'{wiki_name}.analytics.db.svc.wikimedia.cloud',
+        cnx = mysql.connector.connect(option_files='replica.my.cnf',
+                                      host=f'{wiki_name}.analytics.db.svc.wikimedia.cloud',
                                       database=f'{wiki_name}_p')
         if include_zero:
             query = "SELECT user_name, user_registration, user_editcount from user WHERE user_is_temp = false ORDER BY user_editcount desc"
@@ -217,6 +216,8 @@ def get_wiki_statistics(wiki_name, include_zero = True):
 
 
 df_list = []
+
+
 def local_wiki_processing():
     global df_list
     wiki_list = get_wiki_set()
@@ -296,7 +297,8 @@ def upload_file(filename, upload_name):
     # first make sure that the last version is NOT a duplicate
     # check whether the image even exists
     img_req_json = S.get(
-        f'{upload_api}?action=query&titles=File:{upload_name}.svg&prop=imageinfo&iiprop=sha1|timestamp&format=json').json()['query']['pages']
+        f'{upload_api}?action=query&titles=File:{upload_name}.svg&prop=imageinfo&iiprop=sha1|timestamp&format=json').json()[
+        'query']['pages']
     # print(f'{upload_api}?action=query&titles=File:{upload_name}.svg&prop=imageinfo&iiprop=sha1|timestamp&format=json')
     img_dict = img_req_json.popitem()[
         1]  # https://stackoverflow.com/questions/46042430/best-way-to-get-a-single-key-from-a-dictionary - only one value
@@ -311,7 +313,8 @@ def upload_file(filename, upload_name):
         if img_sha1 == new_sha1:
             return False  # don't upload - images are the same
         # now check time
-        timestamp = parser.parse(img_dict['imageinfo'][0]['timestamp']) # required since Python 3.9 does not allow 'Z'-based ISO dates - https://stackoverflow.com/questions/55542280/why-does-python-3-find-this-iso8601-date-2019-04-05t165526z-invalid
+        timestamp = parser.parse(img_dict['imageinfo'][0][
+                                     'timestamp'])  # required since Python 3.9 does not allow 'Z'-based ISO dates - https://stackoverflow.com/questions/55542280/why-does-python-3-find-this-iso8601-date-2019-04-05t165526z-invalid
         current_date = datetime.now(timezone.utc)
         days_diff = (current_date - timestamp).days
         print(f'{days_diff} {current_date} {timestamp}')
@@ -365,13 +368,13 @@ def main():
 
     combined_df = pd.concat(df_list).groupby(['Username', 'Registration_date'])['Edits'].sum().reset_index()
 
-
-    stp, df, graph_df = convert_to_string(False , 'global', combined_df)
+    stp, df, graph_df = convert_to_string(False, 'global', combined_df)
     push_to_wiki('Rank data/Global', stp)
 
     # print(string_to_print)
     percentile_toprint = '=={}==\n\n'.format("Global") + get_percentile_data(graph_df, "Global") + lwp
     push_to_wiki("Percentiles", percentile_toprint)
+
 
 if __name__ == "__main__":
     main()

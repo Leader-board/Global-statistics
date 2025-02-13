@@ -1,7 +1,4 @@
-from os import listdir
 import requests
-import pandas as pd
-import csv
 from scipy import stats
 import json
 from urllib.request import urlopen
@@ -32,7 +29,7 @@ def parse_json(list_loc):
 
 # input to function: a user
 def percentile_and_user_count(username, wiki_name):
-    df = get_wiki_statistics(wiki_name, False)
+    df = get_wiki_statistics(wiki_name, True)
 
     df.rename(
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
