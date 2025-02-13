@@ -35,7 +35,9 @@ def percentile_and_user_count(username, wiki_name):
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
         inplace=True)
 
+    df['Username'] = df['Username'].str.decode('utf-8')
     print(df)
+
     df = df[df['Username'] == username]
     print(df)
     if len(df.index) == 0:
