@@ -42,12 +42,14 @@ def convert_to_string(rankinc, wiki_name=None, existing_df=None):
     df.rename(
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
         inplace=True)
+    df['Username'] = df['Username'].str.decode('utf-8')
+    df['Registration_date'] = df['Registration_date'].str.decode('utf-8')
 
     # df on its own is useful when graphing
 
     full_df = df.copy(deep=True)
     df = df[df['Edits'] > 0]  # remove users with 0 edits
-    df['Username'] = df['Username'].str.decode('utf-8')
+
     df['Registration_date'].fillna('0', inplace=True)
     df.loc[df['Registration_date'].astype(str) == '[None]', 'Registration_date'] = '0'  # remove nan
     df.loc[df['Registration_date'].astype(str) == '', 'Registration_date'] = '0'  # remove nan
