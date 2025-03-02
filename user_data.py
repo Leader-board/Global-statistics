@@ -37,6 +37,7 @@ def percentile_and_user_count(username, wiki_name, df=None):
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
         inplace=True)
 
+    df['Username'] = df['Username'].astype(str)
     df['Username'] = df['Username'].str.decode('utf-8')
     df['Rank'] = df['Edits'].rank(ascending=False, method='min')
     df_user = df[df['Username'] == username]
@@ -65,7 +66,7 @@ def analyse_user(username):
     wiki_set = get_wiki_set()
     percentile_toprint = header_data(username)
     for f in wiki_set:
-        print(f)
+       # print(f)
         # for each file, what do we want? 
         # we want the user's percentile and edit count for each wiki
         usercount, rank, percentile = percentile_and_user_count(username, f)
