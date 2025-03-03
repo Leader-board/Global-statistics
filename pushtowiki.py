@@ -1,5 +1,3 @@
-import pickle
-
 import requests
 import pandas as pd
 import math
@@ -370,7 +368,8 @@ def main():
     # first process all the LOCAL data while preparing the global data as a result
     lwp = local_wiki_processing()
 
-    combined_df = pd.concat(df_list).groupby(['Username', 'Registration_date'])['Edits'].sum()
+    combined_df = pd.concat(df_list).groupby(['Username', 'Registration_date'])['Edits'].sum().reset_index()
+    combined_df['Rank'] = combined_df['Edits'].rank(method='max', ascending=False).astype(int)
    # combined_df.columns = ["Rank", "Registration_date", "Edits"]
 
     stp, df, graph_df = convert_to_string(False, 'global', combined_df)

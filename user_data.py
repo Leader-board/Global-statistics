@@ -6,7 +6,7 @@ from urllib.request import urlopen
 import re
 
 from pushtowiki import get_wiki_statistics
-from vars import wiki_cache, get_wiki_set
+from vars import get_wiki_set
 
 
 def parse_json(list_loc):
@@ -46,7 +46,7 @@ def percentile_and_user_count(username, wiki_name, df=None):
     if len(df_user.index) == 0:
         return 0, len(df_user), 0
 
-    rank = df_user['Rank'].item()
+    rank = df_user['Rank'].astype(int).item()
     usercount = df_user['Edits'].item()
     percentile = stats.percentileofscore(df['Edits'], usercount, kind='strict')
     return usercount, rank, percentile
