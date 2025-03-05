@@ -35,13 +35,15 @@ def return_csv(fileloc, rankinc):
     return df
 
 
-def convert_to_string(rankinc, wiki_name=None, existing_df=None):
+def convert_to_string(rankinc, isglobal=False, wiki_name=None, existing_df=None):
     df = existing_df.copy(deep=False)  # to avoid warning
     df.rename(
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
         inplace=True)
-    df['Username'] = df['Username'].str.decode('utf-8')
-    df['Registration_date'] = df['Registration_date'].str.decode('utf-8')
+    if not isglobal:
+        # already UTF-8ed
+        df['Username'] = df['Username'].str.decode('utf-8')
+        df['Registration_date'] = df['Registration_date'].str.decode('utf-8')
 
     # df on its own is useful when graphing
 
@@ -372,10 +374,11 @@ def main():
     combined_df['Rank'] = combined_df['Edits'].rank(method='max', ascending=False).astype(int)
    # combined_df.columns = ["Rank", "Registration_date", "Edits"]
 
-    stp, df, graph_df = convert_to_string(False, 'global', combined_df)
+    stp, df, graph_df = convert_to_string(False,True, 'global', combined_df)
+    stp = header_data('global') + stp
     push_to_wiki('Rank data/Global', stp)
-    
-    graph_df.to_pickle("global.pickle")
+
+    combined_df.to_pickle("global.pickle")
 
     # print(string_to_print)
     percentile_toprint = '=={}==\n\n'.format("Global") + get_percentile_data(graph_df, "Global") + lwp
