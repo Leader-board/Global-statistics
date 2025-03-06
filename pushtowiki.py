@@ -92,7 +92,7 @@ def centralauth_db():
                                       host=f'centralauth.analytics.db.svc.wikimedia.cloud',
                                       database=f'centralauth_p')
         cursor = cnx.cursor()
-        query = "SELECT CONVERT(gu_name USING utf8), CONVERT(gu_registration USING utf8) from globaluser"
+        query = "SELECT CONVERT(gu_name USING utf8) as Username, CONVERT(gu_registration USING utf8) as Registration_date from globaluser"
         cursor.execute(query)
         res = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
         cursor.close()
@@ -389,7 +389,7 @@ def main():
     combined_df = pd.concat(df_list).groupby(['Username'])['Edits'].sum().reset_index()
     centralauth_df = centralauth_db()
     combined_df['Rank'] = combined_df['Edits'].rank(method='max', ascending=False).astype(int)
-    combined_df = pd.merge(combined_df, centralauth_df, how='left', left_on='Username',right_on='gu_name')
+    combined_df = pd.merge(combined_df, centralauth_df, how='left')
 
    # combined_df.columns = ["Rank", "Registration_date", "Edits"]
 
