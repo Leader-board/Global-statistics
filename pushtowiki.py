@@ -85,6 +85,22 @@ def convert_to_string(rankinc, isglobal=False, wiki_name=None, existing_df=None)
 
     return toprint, df, full_df
 
+def centralauth_db():
+    # needed to get the registration date for global accounts
+    try:
+        cnx = mysql.connector.connect(option_files='replica.my.cnf',
+                                      host=f'centralauth_p.analytics.db.svc.wikimedia.cloud',
+                                      database=f'centralauth_p')
+        cursor = cnx.cursor()
+        query = "SELECT gu_name, gu_registration from globaluser"
+        cursor.execute(query)
+        res = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
+        cursor.close()
+        return res
+    except Exception as e:
+        print(f"Error in getting CentralAuth database")
+        print(e)
+        return None
 
 def add_categories(wiki_name):
     # input is something like 'enwiki', 'mlwikisource'
@@ -370,8 +386,11 @@ def main():
     # first process all the LOCAL data while preparing the global data as a result
     lwp = local_wiki_processing()
 
-    combined_df = pd.concat(df_list).groupby(['Username', 'Registration_date'])['Edits'].sum().reset_index()
+    combined_df = pd.concat(df_list).groupby(['Username'])['Edits'].sum().reset_index()
+    centralauth_df = centralauth_db()
     combined_df['Rank'] = combined_df['Edits'].rank(method='max', ascending=False).astype(int)
+    combined_df = pd.merge(combined_df, centralauth_df, how='left', left_on='Username',right_on='gu_name')
+
    # combined_df.columns = ["Rank", "Registration_date", "Edits"]
 
     stp, df, graph_df = convert_to_string(False,True, 'global', combined_df)
