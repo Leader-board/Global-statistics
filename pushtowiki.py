@@ -89,7 +89,7 @@ def centralauth_db():
     # needed to get the registration date for global accounts
     try:
         cnx = mysql.connector.connect(option_files='replica.my.cnf',
-                                      host=f'centralauth_p.analytics.db.svc.wikimedia.cloud',
+                                      host=f'centralauth.analytics.db.svc.wikimedia.cloud',
                                       database=f'centralauth_p')
         cursor = cnx.cursor()
         query = "SELECT gu_name, gu_registration from globaluser"
