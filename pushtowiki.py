@@ -390,6 +390,7 @@ def main():
     centralauth_df = centralauth_db()
     combined_df['Rank'] = combined_df['Edits'].rank(method='max', ascending=False).astype(int)
     combined_df = pd.merge(combined_df, centralauth_df, how='left')
+    combined_df.sort_values(by='Edits', ascending=False, inplace=True)
 
    # combined_df.columns = ["Rank", "Registration_date", "Edits"]
 
