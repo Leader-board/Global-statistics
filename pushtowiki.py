@@ -92,7 +92,7 @@ def centralauth_db():
                                       host=f'centralauth.analytics.db.svc.wikimedia.cloud',
                                       database=f'centralauth_p')
         cursor = cnx.cursor()
-        query = "SELECT gu_name, gu_registration from globaluser"
+        query = "SELECT CONVERT(gu_name USING utf8), CONVERT(gu_registration USING utf8) from globaluser"
         cursor.execute(query)
         res = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
         cursor.close()
