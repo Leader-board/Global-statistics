@@ -217,9 +217,9 @@ def get_wiki_statistics(wiki_name, include_zero=True):
                                       host=f'{wiki_name}.analytics.db.svc.wikimedia.cloud',
                                       database=f'{wiki_name}_p')
         if include_zero:
-            query = "SELECT CONVERT(user_name USING UTF_8), CONVERT(user_registration USING UTF_8), user_editcount from user WHERE user_is_temp = false ORDER BY user_editcount desc"
+            query = "SELECT CONVERT(user_name USING utf8), CONVERT(user_registration USING utf8), user_editcount from user WHERE user_is_temp = false ORDER BY user_editcount desc"
         else:
-            query = "SELECT CONVERT(user_name USING UTF_8), CONVERT(user_registration USING UTF_8), user_editcount from user WHERE user_is_temp = false AND user_editcount > 0 ORDER BY user_editcount desc"
+            query = "SELECT CONVERT(user_name USING utf8), CONVERT(user_registration USING utf8), user_editcount from user WHERE user_is_temp = false AND user_editcount > 0 ORDER BY user_editcount desc"
         cursor = cnx.cursor()
         cursor.execute(query)
         res = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
