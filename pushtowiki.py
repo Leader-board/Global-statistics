@@ -40,10 +40,6 @@ def convert_to_string(rankinc, isglobal=False, wiki_name=None, existing_df=None)
     df.rename(
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
         inplace=True)
-    if not isglobal:
-        # already UTF-8ed
-        df['Username'] = df['Username'].str.decode('utf-8')
-        df['Registration_date'] = df['Registration_date'].str.decode('utf-8')
 
     # df on its own is useful when graphing
 
@@ -221,9 +217,9 @@ def get_wiki_statistics(wiki_name, include_zero=True):
                                       host=f'{wiki_name}.analytics.db.svc.wikimedia.cloud',
                                       database=f'{wiki_name}_p')
         if include_zero:
-            query = "SELECT user_name, user_registration, user_editcount from user WHERE user_is_temp = false ORDER BY user_editcount desc"
+            query = "SELECT CONVERT(user_name USING UTF_8), CONVERT(user_registration USING UTF_8), user_editcount from user WHERE user_is_temp = false ORDER BY user_editcount desc"
         else:
-            query = "SELECT user_name, user_registration, user_editcount from user WHERE user_is_temp = false AND user_editcount > 0 ORDER BY user_editcount desc"
+            query = "SELECT CONVERT(user_name USING UTF_8), CONVERT(user_registration USING UTF_8), user_editcount from user WHERE user_is_temp = false AND user_editcount > 0 ORDER BY user_editcount desc"
         cursor = cnx.cursor()
         cursor.execute(query)
         res = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
@@ -387,6 +383,8 @@ def main():
     lwp = local_wiki_processing()
 
     combined_df = pd.concat(df_list).groupby(['Username'])['Edits'].sum().reset_index()
+
+    del df_list  # we don't need this anymore, could save significant amount of memory
     centralauth_df = centralauth_db()
     combined_df['Rank'] = combined_df['Edits'].rank(method='max', ascending=False).astype(int)
     combined_df = pd.merge(combined_df, centralauth_df, how='left')
