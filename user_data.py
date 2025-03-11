@@ -37,9 +37,8 @@ def percentile_and_user_count(username, wiki_name, df=None):
         columns={"user_name": "Username", "user_registration": "Registration_date", "user_editcount": "Edits"},
         inplace=True)
 
-    df['Username'] = df['Username'].astype(str)
-    df['Username'] = df['Username'].str.decode('utf-8')
-    df['Rank'] = df['Edits'].rank(ascending=False, method='min')
+    if wiki_name != 'global':
+        df['Rank'] = df['Edits'].rank(ascending=False, method='min')
     df_user = df[df['Username'] == username]
 
    # print(df_user)
