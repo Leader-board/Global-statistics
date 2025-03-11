@@ -33,8 +33,7 @@ def parse_json(list_loc):
 def percentile_and_user_count(username, wiki_name, df=None):
     if wiki_name in wiki_cache:
         wiki_cache.get(wiki_name)
-
-    if wiki_name != 'global':
+    elif wiki_name != 'global':
         df = get_wiki_statistics(wiki_name, True)
 
     df.rename(
@@ -45,8 +44,9 @@ def percentile_and_user_count(username, wiki_name, df=None):
         df['Rank'] = df['Edits'].rank(ascending=False, method='min')
     df_user = df[df['Username'] == username]
 
-    with Cache(wiki_cache.directory) as reference:
-        reference.set(wiki_name, df)
+    if wiki_name not in wiki_cache:
+        with Cache(wiki_cache.directory) as reference:
+            reference.set(wiki_name, df)
 
    # print(df_user)
     if len(df_user.index) == 0:
