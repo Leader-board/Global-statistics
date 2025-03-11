@@ -4,9 +4,10 @@ from scipy import stats
 import json
 from urllib.request import urlopen
 import re
+from diskcache import Cache
 
 from pushtowiki import get_wiki_statistics
-from vars import get_wiki_set
+from vars import get_wiki_set, wiki_cache
 
 
 def parse_json(list_loc):
@@ -30,6 +31,9 @@ def parse_json(list_loc):
 
 # input to function: a user
 def percentile_and_user_count(username, wiki_name, df=None):
+    if wiki_name in wiki_cache:
+        wiki_cache.get(wiki_name)
+
     if wiki_name != 'global':
         df = get_wiki_statistics(wiki_name, True)
 
@@ -40,6 +44,9 @@ def percentile_and_user_count(username, wiki_name, df=None):
     if wiki_name != 'global':
         df['Rank'] = df['Edits'].rank(ascending=False, method='min')
     df_user = df[df['Username'] == username]
+
+    with Cache(wiki_cache.directory) as reference:
+        reference.set(wiki_name, df)
 
    # print(df_user)
     if len(df_user.index) == 0:
@@ -148,8 +155,8 @@ def push_to_wiki(username, string_to_print):
 
     print(DATA)
 
-
 def main():
+    wiki_cache = Cache(size_limit=int(4e9))
     parse_json(
         r'https://meta.wikimedia.org/w/api.php?action=parse&formatversion=2&page=Global+statistics/Mailing+list&prop=wikitext&format=json')
     # push_to_wiki('Martin Urbanec', analyse_user('Martin Urbanec', '/statdata'))

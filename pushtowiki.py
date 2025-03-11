@@ -334,7 +334,7 @@ def upload_file(filename, upload_name):
         current_date = datetime.now(timezone.utc)
         days_diff = (current_date - timestamp).days
         print(f'{days_diff} {current_date} {timestamp}')
-        if days_diff < 6:
+        if days_diff <= 6:
             return False  # too little a gap
 
     # Step 4: Post request to upload a file directly
