@@ -8,3 +8,4 @@ fileHash
 PyMySQL
 diskcache
 dask
+dask[dataframe]
