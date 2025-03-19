@@ -16,6 +16,7 @@ from vars import wiki_cache, get_wiki_set
 import dask.dataframe as dd
 from dask import delayed
 from dask.dataframe import from_pandas
+from multiprocessing import Process
 
 
 def header_data(wikiname):
@@ -252,7 +253,8 @@ def local_wiki_processing():
         df_list.append(aggregate_df(graph_df[graph_df['Edits'] > 0]))
         toprint = header_data(wiki) + tp
         push_to_wiki('Rank data/' + wiki, toprint)
-        graph_data(graph_df, wiki)
+        process = Process(target=graph_data, args=(dframe, wiki))
+        process.start()
         percentile_toprint = percentile_toprint + '=={}==\n\n'.format(wiki)
         percentile_toprint = percentile_toprint + get_percentile_data(graph_df, wiki)
 
