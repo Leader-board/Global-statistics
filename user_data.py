@@ -1,3 +1,5 @@
+import shutil
+
 import pandas as pd
 import requests
 from scipy import stats
@@ -158,6 +160,8 @@ def push_to_wiki(username, string_to_print):
 def main():
     parse_json(
         r'https://meta.wikimedia.org/w/api.php?action=parse&formatversion=2&page=Global+statistics/Mailing+list&prop=wikitext&format=json')
+    wiki_cache.close()
+    shutil.rmtree(wiki_cache.directory)
     # push_to_wiki('Martin Urbanec', analyse_user('Martin Urbanec', '/statdata'))
 
 

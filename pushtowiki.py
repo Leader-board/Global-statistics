@@ -13,6 +13,10 @@ from iso639 import Lang
 
 from vars import wiki_cache, get_wiki_set
 
+import dask.dataframe as dd
+from dask import delayed
+from dask.dataframe import from_pandas
+
 
 def header_data(wikiname):
     return "{{| class=\"wikitable sortable\"\n|+ {} user rank data\n|-\n! Rank !! Username !! Registration date !! Number of edits\n|-\n".format(
@@ -34,6 +38,9 @@ def return_csv(fileloc, rankinc):
               inplace=True)
     return df
 
+@delayed
+def aggregate_df(df):
+    return df.groupby('Username', as_index=False)['Edits'].sum()
 
 def convert_to_string(rankinc, isglobal=False, wiki_name=None, existing_df=None):
     df = existing_df.copy(deep=False)  # to avoid warning
@@ -92,7 +99,7 @@ def centralauth_db():
         cursor.execute(query)
         res = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
         cursor.close()
-        return res
+        return from_pandas(res)
     except Exception as e:
         print(f"Error in getting CentralAuth database")
         print(e)
@@ -242,7 +249,7 @@ def local_wiki_processing():
         print(f"Processing {wiki}")
         df = get_wiki_statistics(wiki)
         tp, dframe, graph_df = convert_to_string(False, False, wiki, df)
-        df_list.append(graph_df[graph_df['Edits'] > 0])
+        df_list.append(aggregate_df(graph_df[graph_df['Edits'] > 0]))
         toprint = header_data(wiki) + tp
         push_to_wiki('Rank data/' + wiki, toprint)
         graph_data(graph_df, wiki)
@@ -382,13 +389,16 @@ def main():
     # first process all the LOCAL data while preparing the global data as a result
     lwp = local_wiki_processing()
 
-    combined_df = pd.concat(df_list).groupby(['Username'])['Edits'].sum().reset_index()
+    # using Dask, with ideas from Copilot
+    combined_df = dd.concat([dd.from_delayed(agg) for agg in df_list])
+    combined_df = combined_df.groupby('Username', as_index=False)['Edits'].sum().compute()
 
     del df_list  # we don't need this anymore, could save significant amount of memory
     centralauth_df = centralauth_db()
     combined_df['Rank'] = combined_df['Edits'].rank(method='max', ascending=False).astype(int)
-    combined_df = pd.merge(combined_df, centralauth_df, how='left')
+    combined_df = dd.merge(combined_df, centralauth_df, how='left')
     combined_df.sort_values(by='Edits', ascending=False, inplace=True)
+    combined_df.compute()
 
    # combined_df.columns = ["Rank", "Registration_date", "Edits"]
 
